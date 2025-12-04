@@ -6,7 +6,7 @@ import Login from "../auth/Login";
 import Register from "../auth/Register";
 import Blogs from "../pages/blogs/Blogs";
 import Contacts from "../pages/contacts/Contacts";
-import BioData from "../pages/biodata/BioData";
+import BioData from "../pages/biodata/BioDatas";
 
 export const router = createBrowserRouter([
   {

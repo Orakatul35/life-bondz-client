@@ -1,16 +1,17 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthProvider.jsx";
 
 const Navbar = () => {
   const { user, role, logoutUser } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "Biodata", path: "/biodata" },
-    { name: "Blogs", path: "/blogs" },
-    { name: "Contacts", path: "/contacts" },
+    { name: "Biodatas", path: "/biodatas" },
+    { name: "About Us", path: "/about" },
+    { name: "Contact Us", path: "/contact" },
   ];
 
   const linkStyle = ({ isActive }) =>
@@ -18,10 +19,19 @@ const Navbar = () => {
       ? "text-rose-500 font-semibold transition"
       : "text-gray-700 hover:text-rose-500 transition";
 
+  // Redirect Dashboard based on role
+  const handleDashboard = () => {
+    if (role === "admin") {
+      navigate("/admin-dashboard");
+    } else if (role === "user") {
+      navigate("/user-dashboard");
+    }
+  };
+
   return (
     <div className="bg-white/80 backdrop-blur-xl border-b border-rose-100 shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-5 py-3 flex justify-between items-center">
-        
+
         {/* Logo */}
         <Link
           to="/"
@@ -38,16 +48,14 @@ const Navbar = () => {
             </NavLink>
           ))}
 
-          {/* Role Based Dashboard */}
-          {user && role === "user" && (
-            <NavLink to="/user-dashboard" className={linkStyle}>
-              User Dashboard
-            </NavLink>
-          )}
-          {user && role === "admin" && (
-            <NavLink to="/admin-dashboard" className={linkStyle}>
-              Admin Dashboard
-            </NavLink>
+          {/* Dashboard Link */}
+          {user && (
+            <button
+              onClick={handleDashboard}
+              className="text-gray-700 hover:text-rose-500 transition font-medium"
+            >
+              Dashboard
+            </button>
           )}
         </div>
 
@@ -60,12 +68,6 @@ const Navbar = () => {
                 className="px-5 py-2 border border-rose-400 text-rose-500 rounded-xl hover:bg-rose-50 transition font-semibold"
               >
                 Login
-              </Link>
-              <Link
-                to="/register"
-                className="px-5 py-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-xl shadow hover:scale-105 transition font-semibold"
-              >
-                Register
               </Link>
             </>
           ) : (
@@ -95,9 +97,10 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Drawer */}
       {open && (
         <div className="md:hidden bg-white shadow-xl border-t border-rose-100 px-5 py-4 space-y-4 animate-fadeDown">
+          
           {navLinks.map((link) => (
             <NavLink
               key={link.name}
@@ -109,44 +112,28 @@ const Navbar = () => {
             </NavLink>
           ))}
 
-          {/* Role based mobile dashboard */}
-          {user && role === "user" && (
-            <NavLink
-              to="/user-dashboard"
-              onClick={() => setOpen(false)}
-              className="block text-lg text-gray-700 hover:text-rose-500 transition"
+          {/* Dashboard mobile */}
+          {user && (
+            <button
+              onClick={() => {
+                handleDashboard();
+                setOpen(false);
+              }}
+              className="block text-lg text-gray-700 hover:text-rose-500 font-medium"
             >
-              User Dashboard
-            </NavLink>
-          )}
-          {user && role === "admin" && (
-            <NavLink
-              to="/admin-dashboard"
-              onClick={() => setOpen(false)}
-              className="block text-lg text-gray-700 hover:text-rose-500 transition"
-            >
-              Admin Dashboard
-            </NavLink>
+              Dashboard
+            </button>
           )}
 
           <div className="border-t pt-4">
             {!user ? (
-              <>
-                <Link
-                  to="/login"
-                  onClick={() => setOpen(false)}
-                  className="block w-full text-center py-2 border border-rose-400 text-rose-500 rounded-xl font-semibold"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setOpen(false)}
-                  className="block w-full text-center py-2 mt-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-xl font-semibold shadow"
-                >
-                  Register
-                </Link>
-              </>
+              <Link
+                to="/login"
+                onClick={() => setOpen(false)}
+                className="block w-full text-center py-2 border border-rose-400 text-rose-500 rounded-xl font-semibold"
+              >
+                Login
+              </Link>
             ) : (
               <button
                 onClick={() => {

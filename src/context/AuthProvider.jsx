@@ -6,9 +6,9 @@ import {
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../firebase/firebas.config";
-
 
 export const AuthContext = createContext(null);
 
@@ -16,19 +16,61 @@ const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null); // "user" | "admin"
+  const [role, setRole] = useState(null); 
   const [loading, setLoading] = useState(true);
 
+  const saveUserToDB = async (newUser) => {
+    await fetch("http://localhost:5000/users", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(newUser),
+    });
+  };
+
+  const getUserRole = async (email) => {
+    const res = await fetch(`http://localhost:5000/users/${email}`);
+    const data = await res.json();
+    return data?.role || "user";
+  };
+
   // GOOGLE LOGIN
-  const googleLogin = () => {
+  const googleLogin = async () => {
     setLoading(true);
-    return signInWithPopup(auth, googleProvider);
+    const result = await signInWithPopup(auth, googleProvider);
+
+    const loggedInUser = result.user;
+
+    await saveUserToDB({
+      name: loggedInUser.displayName,
+      email: loggedInUser.email,
+      photoURL: loggedInUser.photoURL,
+      role: "user",
+      createdAt: new Date(),
+    });
+
+    return result;
   };
 
   // EMAIL REGISTER
-  const createAccount = (email, password) => {
+  const createAccount = async (name, email, password, photoURL) => {
     setLoading(true);
-    return createUserWithEmailAndPassword(auth, email, password);
+
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+
+    await updateProfile(auth.currentUser, {
+      displayName: name,
+      photoURL: photoURL,
+    });
+
+    await saveUserToDB({
+      name,
+      email,
+      photoURL,
+      role: "user",
+      createdAt: new Date(),
+    });
+
+    return result;
   };
 
   // EMAIL LOGIN
@@ -45,15 +87,14 @@ const AuthProvider = ({ children }) => {
 
   // TRACK USER LOGIN STATE
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
 
-      // DEMO ROLE LOGIC ↓  
-      // TODO: Replace with DB role check
-      if (currentUser?.email === "admin@gmail.com") {
-        setRole("admin");
+      if (currentUser?.email) {
+        const userRole = await getUserRole(currentUser.email);
+        setRole(userRole);
       } else {
-        setRole("user");
+        setRole(null);
       }
 
       setLoading(false);
