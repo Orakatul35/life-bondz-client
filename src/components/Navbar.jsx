@@ -10,8 +10,9 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Biodatas", path: "/biodatas" },
-    { name: "About Us", path: "/about" },
-    { name: "Contact Us", path: "/contact" },
+    { name: "Blogs", path: "/blogs" },
+    { name: "About Us", path: "/aboutus" },
+    { name: "Contact Us", path: "/contacts" },
   ];
 
   const linkStyle = ({ isActive }) =>
@@ -19,14 +20,12 @@ const Navbar = () => {
       ? "text-rose-500 font-semibold transition"
       : "text-gray-700 hover:text-rose-500 transition";
 
-  // Redirect Dashboard based on role
+  // Dashboard Route Adjusted to Your Router
   const handleDashboard = () => {
-    if (role === "admin") {
-      navigate("/admin-dashboard");
-    } else if (role === "user") {
-      navigate("/user-dashboard");
-    }
-  };
+  if (role === "admin") navigate("/dashboard/admin");
+  else navigate("/dashboard/user");
+};
+
 
   return (
     <div className="bg-white/80 backdrop-blur-xl border-b border-rose-100 shadow-md sticky top-0 z-50">

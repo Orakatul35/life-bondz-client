@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BioData = () => {
+const BioDatas = () => {
     return (
         <div>
             BioData
@@ -8,4 +8,4 @@ const BioData = () => {
     );
 };
 
-export default BioData;
+export default BioDatas;
